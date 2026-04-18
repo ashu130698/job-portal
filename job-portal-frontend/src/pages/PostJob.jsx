@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { createJob } from "../api/jobs";
+import toast from "react-hot-toast";
 
 const inputStyle = {
   width: "100%",
@@ -49,7 +50,8 @@ export default function PostJob() {
     setLoading(true);
     try {
       await createJob(form);
-      navigate("/my-jobs");
+      toast.success("Job posted successfully!");
+      setTimeout(() => navigate("/my-jobs"), 800);
     } catch (err) {
       console.error(err);
     } finally {

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllJobs, deleteJob } from "../api/jobs";
+import toast from "react-hot-toast";
 import Loader from "../components/Loader";
 import DeleteModal from "../components/DeleteModal";
 import { MdMoreVert } from "react-icons/md";
@@ -10,6 +11,10 @@ export default function MyJobs() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
+  const [search, setSearch] = useState("");
+  const filtered = jobs.filter((j) =>
+    j.title.toLowerCase().includes(search.toLowerCase()),
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,10 +36,16 @@ export default function MyJobs() {
     try {
       await deleteJob(deleteId);
       setDeleteId(null);
+      toast.success("Job deleted!");
       fetchJobs();
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const getStatus = (expirationDate) => {
+    if (!expirationDate) return "Active";
+    return new Date(expirationDate) > new Date() ? "Active" : "Expired";
   };
 
   const getDaysRemaining = (expirationDate) => {
@@ -52,7 +63,31 @@ export default function MyJobs() {
         My Jobs
       </h1>
 
-      {jobs.length === 0 ? (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: 16,
+        }}
+      >
+        <span />
+        <input
+          placeholder="Search jobs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            padding: "8px 14px",
+            borderRadius: 8,
+            border: "1px solid var(--border)",
+            fontSize: 14,
+            width: 280,
+            outline: "none",
+          }}
+        />
+      </div>
+
+      {filtered.length === 0 ? (
         <div
           style={{
             textAlign: "center",
@@ -85,7 +120,7 @@ export default function MyJobs() {
             </tr>
           </thead>
           <tbody>
-            {jobs.map((job) => (
+            {filtered.map((job) => (
               <tr
                 key={job._id}
                 style={{ borderBottom: "1px solid var(--border)" }}
@@ -103,12 +138,15 @@ export default function MyJobs() {
                   <span
                     style={{
                       color:
-                        job.status === "Active" ? "var(--green)" : "var(--red)",
+                        getStatus(job.expirationDate) === "Active"
+                          ? "var(--green)"
+                          : "var(--red)",
                       fontWeight: 500,
                       fontSize: 14,
                     }}
                   >
-                    {job.status === "Active" ? "✓" : "!"} {job.status}
+                    {getStatus(job.expirationDate) === "Active" ? "✓" : "!"}{" "}
+                    {getStatus(job.expirationDate)}
                   </span>
                 </td>
                 <td

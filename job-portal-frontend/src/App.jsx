@@ -7,6 +7,19 @@ import JobDetail from "./pages/JobDetail";
 import PostJob from "./pages/PostJob";
 import EditJob from "./pages/EditJob";
 
+function PlaceholderPage({ title }) {
+  return (
+    <div>
+      <h1 style={{ fontSize: 24, fontWeight: 700, marginBottom: 12 }}>
+        {title}
+      </h1>
+      <p style={{ color: "var(--text-secondary)" }}>
+        This section is not part of the current assignment yet.
+      </p>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -27,6 +40,18 @@ export default function App() {
               <Route path="/jobs/:id" element={<JobDetail />} />
               <Route path="/post-job" element={<PostJob />} />
               <Route path="/edit-job/:id" element={<EditJob />} />
+              <Route
+                path="/profile"
+                element={<PlaceholderPage title="Employer Profile" />}
+              />
+              <Route
+                path="/saved"
+                element={<PlaceholderPage title="Saved Candidates" />}
+              />
+              <Route
+                path="/settings"
+                element={<PlaceholderPage title="Settings" />}
+              />
             </Routes>
           </main>
         </div>

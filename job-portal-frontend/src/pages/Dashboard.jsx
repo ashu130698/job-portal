@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getAllJobs, deleteJob } from "../api/jobs";
+import toast from "react-hot-toast";
 import Loader from "../components/Loader";
 import DeleteModal from "../components/DeleteModal";
 import { MdMoreVert } from "react-icons/md";
@@ -10,6 +11,10 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState(null);
   const [openMenu, setOpenMenu] = useState(null);
+  const [search, setSearch] = useState("");
+  const filtered = jobs.filter((j) =>
+    j.title.toLowerCase().includes(search.toLowerCase()),
+  );
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -31,18 +36,25 @@ export default function Dashboard() {
     try {
       await deleteJob(deleteId);
       setDeleteId(null);
+      toast.success("Job deleted!");
       fetchJobs();
     } catch (err) {
       console.error(err);
     }
   };
 
-  const getDaysRemaining = (expirationDate) => {
-    if (!expirationDate) return "No expiry";
-    const diff = new Date(expirationDate) - new Date();
-    const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-    return days > 0 ? `${days} days remaining` : "Expired";
-  };
+    const getStatus = (expirationDate) => {
+      if (!expirationDate) return "Active";
+      return new Date(expirationDate) > new Date() ? "Active" : "Expired";
+    };
+
+    const getDaysRemaining = (expirationDate) => {
+      if (!expirationDate) return "No expiry";
+      const diff = new Date(expirationDate) - new Date();
+      const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
+      return days > 0 ? `${days} days remaining` : "Expired";
+    };
+    
 
   if (loading) return <Loader />;
 
@@ -95,9 +107,23 @@ export default function Dashboard() {
         }}
       >
         <h2 style={{ fontSize: 18, fontWeight: 600 }}>Recently Posted Jobs</h2>
+        <input
+          placeholder="Search jobs..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{
+            padding: "8px 14px",
+            borderRadius: 8,
+            border: "1px solid var(--border)",
+            fontSize: 14,
+            marginBottom: 16,
+            width: 280,
+            outline: "none",
+          }}
+        />
       </div>
 
-      {jobs.length === 0 ? (
+      {filtered.length === 0 ? (
         <div
           style={{
             textAlign: "center",
@@ -130,7 +156,7 @@ export default function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {jobs.map((job) => (
+            {filtered.map((job) => (
               <tr
                 key={job._id}
                 style={{ borderBottom: "1px solid var(--border)" }}
@@ -148,12 +174,15 @@ export default function Dashboard() {
                   <span
                     style={{
                       color:
-                        job.status === "Active" ? "var(--green)" : "var(--red)",
+                        getStatus(job.expirationDate) === "Active"
+                          ? "var(--green)"
+                          : "var(--red)",
                       fontWeight: 500,
                       fontSize: 14,
                     }}
                   >
-                    {job.status === "Active" ? "✓" : "!"} {job.status}
+                    {getStatus(job.expirationDate) === "Active" ? "✓" : "!"}{" "}
+                    {getStatus(job.expirationDate)}
                   </span>
                 </td>
                 <td

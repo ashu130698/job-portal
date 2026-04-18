@@ -1,7 +1,25 @@
 import axios from "axios";
 
+function getApiBaseUrl() {
+  const fallbackUrl = "http://localhost:5000/api";
+  const rawValue = import.meta.env.VITE_API_URL?.trim();
+
+  if (!rawValue) {
+    return fallbackUrl;
+  }
+
+  const normalizedValue = rawValue
+    .replace(/^VITE_API_URL=/i, "")
+    .replace(/^https:\//i, "https://")
+    .replace(/^http:\//i, "http://")
+    .replace(/\/+$/, "")
+    .replace(/\/jobs$/i, "");
+
+  return normalizedValue || fallbackUrl;
+}
+
 const API = axios.create({
-  baseURL: "https://job-portal-backend-dfbo.onrender.com/api",
+  baseURL: getApiBaseUrl(),
 });
 
 export const getAllJobs = () => API.get("/jobs");

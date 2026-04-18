@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { getJobById, updateJob } from "../api/jobs";
+import toast from "react-hot-toast";
 import Loader from "../components/Loader";
 
 const inputStyle = {
@@ -41,7 +42,8 @@ export default function EditJob() {
     setSaving(true);
     try {
       await updateJob(id, form);
-      navigate(`/jobs/${id}`);
+      toast.success("Job updated!");
+      setTimeout(() => navigate(`/jobs/${id}`), 800);
     } catch (err) {
       console.error(err);
     } finally {
