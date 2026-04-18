@@ -16,7 +16,7 @@ export default function MyJobs() {
     fetchJobs();
   }, []);
 
-  const fetchJobs = async () => {
+  async function fetchJobs() {
     try {
       const res = await getAllJobs();
       setJobs(res.data);
@@ -25,7 +25,7 @@ export default function MyJobs() {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   const handleDelete = async () => {
     try {
